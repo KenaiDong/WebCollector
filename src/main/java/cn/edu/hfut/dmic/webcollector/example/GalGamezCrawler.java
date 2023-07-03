@@ -23,10 +23,17 @@ import cn.edu.hfut.dmic.webcollector.model.Page;
 import cn.edu.hfut.dmic.webcollector.plugin.net.OkHttpRequester;
 import cn.edu.hfut.dmic.webcollector.plugin.rocks.BreadthCrawler;
 import cn.edu.hfut.dmic.webcollector.util.ExceptionUtils;
-import com.google.gson.JsonObject;
+
+import com.google.common.collect.Lists;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import javafx.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -42,24 +49,21 @@ import okhttp3.RequestBody;
  *
  * @author hu
  */
-public class DemoPostCrawler extends BreadthCrawler {
+public class GalGamezCrawler extends BreadthCrawler {
 
     /**
-     * 
+     *
      * 假设我们要爬取三个链接 1)http://www.A.com/index.php 需要POST，并需要POST表单数据username:John
      * 2)http://www.B.com/index.php?age=10 需要POST，数据直接在URL中 ，不需要附带数据 3)http://www.C.com/
      * 需要GET
      */
-    public DemoPostCrawler(final String crawlPath, boolean autoParse) {
+    public GalGamezCrawler(final String crawlPath, boolean autoParse) {
         super(crawlPath, autoParse);
 
-//        addSeed(new CrawlDatum("https://www.google.com/")
-//                .meta("method", "POST")
-//                .meta("username", "John"));
-//        addSeed(new CrawlDatum("https://www.google.com/")
-//                .meta("method", "POST"));
-        addSeed(new CrawlDatum("https://www.google.com/")
-                .meta("method", "GET").meta("host", "127.0.0.1").meta("port", "7890"));
+
+        for (int i = start; i <= end; i++) {
+            addSeed(new CrawlDatum(http + "&page=" + i).meta("method", "POST"));
+        }
 
         setRequester(new OkHttpRequester(){
             @Override
@@ -98,30 +102,30 @@ public class DemoPostCrawler extends BreadthCrawler {
     }
 
 
-
-//    @Override
-//    public Page getResponse(CrawlDatum crawlDatum) throws Exception {
-//        HttpRequest request = new HttpRequest(crawlDatum.url());
-//
-//        request.setMethod(crawlDatum.meta("method"));
-//        String outputData = crawlDatum.meta("outputData");
-//        if (outputData != null) {
-//            request.setOutputData(outputData.getBytes("utf-8"));
-//        }
-//        return request.responsePage();
-//        /*
-//        //通过下面方式可以设置Cookie、User-Agent等http请求头信息
-//        request.setCookie("xxxxxxxxxxxxxx");
-//        request.setUserAgent("WebCollector");
-//        request.addHeader("xxx", "xxxxxxxxx");
-//         */
-//    }
-
     @Override
     public void visit(Page page, CrawlDatums next) {
-        JsonObject jsonObject = page.jsonObject();
-        System.out.println("JSON信息：" + jsonObject);
+        Elements elements = page.doc().getElementsByTag("a");
+        for (Element a : elements) {
+            boolean b = false;
+            for (String k : keys) {
+                b = a.text().contains(k);
+            }
+            if (a.text().contains(key) || b){
+                String href = galgamez + a.attributes().get("href");
+                Pair<String, String > pair = new Pair<String ,String>(a.text(), href);
+                src.add(pair);
+            }
+        }
     }
+
+    static String galgamez = "http://www.galgamezz.org/bbs/";
+    static String http = "http://www.galgamezz.org/bbs/forumdisplay.php?fid=8";
+    static Integer page = 10;
+    static Integer start = 1;
+    static Integer end = 50;
+    static String key = "亿万僵尸";
+    static String[] keys = new String[]{"亿万僵尸"};
+    static List<Pair<String , String>> src = new ArrayList<Pair<String, String>>();
 
     /**
      *
@@ -130,8 +134,13 @@ public class DemoPostCrawler extends BreadthCrawler {
      */
     public static void main(String[] args) throws Exception {
 
-        DemoPostCrawler crawler = new DemoPostCrawler("json_crawler", true);
+        GalGamezCrawler crawler = new GalGamezCrawler("json_crawler", true);
         crawler.start(1);
+        for (Pair<String, String> pair : src) {
+            System.out.println(pair.getKey() + "    ");
+            System.out.println(pair.getValue());
+            System.out.println();
+        }
     }
 
 }

@@ -184,38 +184,6 @@
             </plugin> 
             -->
 
-
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <tasks>
-                                <!--<delete dir="./docs" includeemptydirs="true"/>-->
-                                <!--<copy todir="./docs">-->
-                                    <!--<fileset dir="${project.build.directory}/apidocs">-->
-                                    <!--</fileset>-->
-                                <!--</copy>-->
-                                <copy todir="${project.build.directory}/bin">
-                                    <fileset dir="${project.build.directory}">
-                                        <include name="*.jar"/>
-                                        <include name="*.sh"/>
-                                        <include name="*.bat"/>
-                                    </fileset>
-                                </copy>
-
-                                <zip basedir="${project.build.directory}/bin"
-                                     destfile="./webcollector-${project.version}-bin.zip"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
 
     </build>
@@ -363,6 +331,16 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>11</version>
+        </dependency>
     </dependencies>
 
     <developers>
